@@ -25,6 +25,9 @@ public class Singleton {
         ZohoCorp tenkasi = ZohoCorp.getBranch();
         ZohoCorp covai = ZohoCorp.getBranch();
 
+        if(chennai.hashCode() == tenkasi.hashCode() && chennai.hashCode()==covai.hashCode() && tenkasi.hashCode() == covai.hashCode()) {
+                System.out.println("Single object only created...");
+        }
         chennai.branches("Chennai", "Potheri");
         tenkasi.branches("Tenkasi", "Mathalamparai");
         covai.branches("Coimbatore", "Chiniyampalayam");
