@@ -1,0 +1,120 @@
+
+AADHAR TABLE : 
+
+CREATE TABLE aadhar ( 
+sno INTEGER PRIMARY KEY  AUTOINCREMENT NOT NULL, 
+name VARCHAR(30) NOT NULL,
+mobile VARCAHR(15) NOT NULL UNIQUE,
+aadharNo   VARCHAR(12) NOT NULL UNIQUE,
+voteidno VARCHAR(20) UNIQUE,
+CONSTRAINT fk_person FOREIGN KEY (aadharNo) REFERENCES person(aid) ON DELETE SET NULL,
+CONSTRAINT fk_vote FOREIGN KEY (voteidno) REFERENCES vote(vno) ON DELETE SET NULL
+);
+
+SELECT * FROM aadhar;
+————————————————————————————————————————————————————————————————————————
+Insert Trigger : 
+
+CREATE TRIGGER insert_data AFTER INSERT
+ON aadhar
+BEGIN
+INSERT INTO person(ano,name,mobile) VALUES (NEW.aadharNo, NEW.name, NEW.mobile);
+INSERT INTO vote(name,mobile,aadharNo) VALUES (NEW.name, NEW.mobile, NEW.aadharNo);
+END;
+
+————————————————————————————————————————————————————————————————————————
+Update Trigger : 
+
+CREATE TRIGGER update_data AFTER UPDATE
+ON aadhar
+BEGIN
+
+UPDATE person SET name = NEW.name WHERE 
+ano = CASE WHEN ano IS NOT NULL THEN NEW.aadharNo ELSE OLD.aadharNo END;
+
+UPDATE person SET mobile = NEW.mobile WHERE 
+mobile = CASE WHEN mobile IS NOT NULL THEN NEW.mobile ELSE OLD.mobile END;
+
+
+UPDATE vote SET name = NEW.name WHERE 
+aadharNo = CASE WHEN aadharNo IS NOT NULL THEN NEW.aadharNo ELSE OLD.aadharNo END;
+
+UPDATE vote SET mobile = NEW.mobile WHERE 
+mobile = CASE WHEN mobile IS NOT NULL THEN NEW.mobile ELSE OLD.mobile END;
+
+END;
+————————————————————————————————————————————————————————————————————————
+Delete Trigger : 
+
+CREATE TRIGGER delete_data AFTER DELETE
+ON aadhar
+BEGIN
+DELETE FROM person WHERE ano = OLD.aadharNo;
+DELETE FROM vote WHERE aadharNo = OLD.aadharNo;
+
+END;
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+Person Table : 
+
+CREATE TABLE person (
+ano VARCHAR(12)  PRIMARY KEY NOT NULL,
+name VARCHAR(30) NOT NULL,
+fathername VARCHAR(30),
+address VARCHAR(100),
+mobile VARCAHR(15) NOT NULL UNIQUE,
+dob VARCHAR(20)
+);
+
+SELECT * FROM person;
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+Vote Table : 
+
+CREATE TABLE vote(
+vno VARCHAR(20) PRIMARY KEY,
+name VARCHAR(30) NOT NULL,
+vol VARCHAR(30),
+place VARCHAR(30),
+vardno INTEGER,
+mobile VARCAHR(15) UNIQUE NOT NULL,
+aadharNo VARCHAR(12),
+FOREIGN KEY (aadharNo) REFERENCES aadhar(aadharNo) ON DELETE CASCADE
+);
+
+SELECT * FROM vote;
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+Aadhar Data : 
+
+INSERT INTO aadhar VALUES (1,"Arun","1234567890","123456789012","123AB45");
+INSERT INTO aadhar(name, mobile, aadharNo,voteidno) VALUES 
+("Ajith","2345678901","908765432135","324DF35"),
+("Shek","9876540321","102345678921","23FW43");
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+Join : 
+
+SELECT aadhar.name,person.fathername,aadhar.mobile FROM aadhar 
+INNER JOIN person
+ON  aadhar.aadharNo = person.ano;
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+Union : 
+
+SELECT name, mobile FROM aadhar
+UNION ALL
+SELECT name,mobile FROM vote;
+
+
+
+
+
+
+
+
+
+
+
