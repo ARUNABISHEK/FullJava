@@ -1,5 +1,7 @@
 package com.example.notesapplication.adapter
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -12,11 +14,10 @@ import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notesapplication.MainActivity.Companion.copyNote
 import com.example.notesapplication.R
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.databinding.NotesListBinding
@@ -31,9 +32,8 @@ class Adapter(private val isStared : Boolean = false) : RecyclerView.Adapter<Vie
     private var noteList = mutableListOf<Notes>()
     private var myList = mutableListOf<Notes>()
     private var folderId : Int = -1
-
+    var insideFolderIsNoteAvailable = false
     private lateinit var binding : NotesListBinding
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -90,7 +90,7 @@ class Adapter(private val isStared : Boolean = false) : RecyclerView.Adapter<Vie
     }
 
     fun getNote(index : Int) : Notes {
-        return noteList[index]
+        return myList[index]
     }
 
     fun setNote(list : List<Notes>) {
@@ -103,6 +103,7 @@ class Adapter(private val isStared : Boolean = false) : RecyclerView.Adapter<Vie
     }
 
     fun fileInFolder(id : Int) {
+
         myList.clear()
 
         for(i in noteList) {
@@ -110,7 +111,10 @@ class Adapter(private val isStared : Boolean = false) : RecyclerView.Adapter<Vie
                 myList.add(i)
             }
         }
+
         notifyDataSetChanged()
+
+        insideFolderIsNoteAvailable = myList.isNotEmpty()
     }
 
 }
@@ -172,7 +176,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
         binding.listItem.setOnLongClickListener{
 
-            //popup(it,note)
+//            popup(it,note)
             true
         }
 
@@ -186,8 +190,8 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 //        popupMenu.setOnMenuItemClickListener { item ->
 //
 //            if (item.title == "Copy") {
-//                copyNote = note
-//                Toast.makeText(v.context,"Note copied",Toast.LENGTH_SHORT).show()
+//                val copyNote : Notes = note.copy()
+//
 //            }
 //            if (item.title == "Move") {
 //
@@ -252,6 +256,8 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
                 if (pass == "" || pass == null) {
                     Toast.makeText(it.context, "Please enter password", Toast.LENGTH_SHORT)
                         .show()
+                    lockDialogBox(it, note, noteViewModel)
+
                 } else {
                     Log.i("lock", pass.toString())
                     note.lock = noteViewModel.encrypt(pass.toString())
@@ -260,9 +266,14 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
                 }
 
             }
+
             builder.setNegativeButton(
                 "Cancel"
-            ) { dialog, which -> dialog.cancel() }
+            ) { dialog, which ->
+                Toast.makeText(it.context, "Canceled", Toast.LENGTH_SHORT)
+                    .show()
+                dialog.cancel()
+            }
 
             builder.show()
         }
@@ -290,7 +301,9 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
             }
             builder.setNegativeButton(
                 "Cancel"
-            ) { dialog, _ -> dialog.cancel() }
+            ) { dialog, _ -> dialog.cancel()
+                Toast.makeText(it.context, "Please enter password", Toast.LENGTH_SHORT)
+                    .show()}
 
             builder.show()
         }
@@ -300,6 +313,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
         var text = ""
         if(note.lock!=null) {
             val builder = AlertDialog.Builder(it)
+            builder.setCancelable(false)
             builder.setTitle("Password : ")
 
             val input = EditText(it)
@@ -309,23 +323,35 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
             builder.setPositiveButton(
                 "OK"
-            ) { dialog, which -> text = input.text.toString()
+            ) { dialog, which ->
+
+                text = input.text.toString()
 
                 val decrypt : String = noteViewModel.decrypt(note.lock.toString())
-                Log.i("Decry",decrypt)
-                if(text==decrypt) {
-                    val i = Intent(it, AddNote::class.java)
-                    i.putExtra("noteObject",note)
-                    i.putExtra("isUpdate",true)
-                    startActivity(it, i, null)
+
+                if(text=="") {
+                    Toast.makeText(it, "Please enter password", Toast.LENGTH_SHORT)
+                        .show()
+                    openNote(it, note)
+
                 }
                 else {
-                    Toast.makeText(it,"Incorrect password", Toast.LENGTH_SHORT).show()
+                    if (text == decrypt) {
+                        val i = Intent(it, AddNote::class.java)
+                        i.putExtra("noteObject", note)
+                        i.putExtra("isUpdate", true)
+                        startActivity(it, i, null)
+                    } else {
+                        Toast.makeText(it, "Incorrect password", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             builder.setNegativeButton(
                 "Cancel"
-            ) { dialog, which -> dialog.cancel() }
+            ) { dialog, which ->
+                Toast.makeText(it, "Canceled", Toast.LENGTH_SHORT)
+                    .show()
+                dialog.cancel() }
 
             builder.show()
         } else {

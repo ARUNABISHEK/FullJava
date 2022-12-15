@@ -10,6 +10,8 @@
             name="myViewModel"
             type="com.example.notesapplication.view_models.NoteViewModel" />
     </data>
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/note_frame"
         android:layout_width="match_parent"
@@ -71,7 +73,6 @@
             android:ems="10"
             android:hint="Title"
             android:inputType="textPersonName"
-
             android:textSize="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

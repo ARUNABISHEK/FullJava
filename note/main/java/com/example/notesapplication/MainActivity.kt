@@ -1,25 +1,31 @@
 package com.example.notesapplication
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.databinding.ActivityMainBinding
 import com.example.notesapplication.folderoption.db.model.Folder
 import com.example.notesapplication.folderoption.fragment.FolderFragment
 import com.example.notesapplication.folderoption.fragment.FolderFragment.Companion.folderViewModel
+import com.example.notesapplication.folderoption.viewModels.FolderViewModel
 import com.example.notesapplication.fragments.FragmentPage
 import com.example.notesapplication.fragments.FragmentPage.Companion.adapter
 import com.example.notesapplication.fragments.FragmentPage.Companion.noteViewModel
@@ -28,27 +34,31 @@ import com.example.notesapplication.operations.MainPage
 import com.example.notesapplication.operations.NavigationBar
 import com.example.notesapplication.variables.NAVIGATION_INFO
 import com.example.notesapplication.variables.TEST_TAG
+import com.example.notesapplication.view_models.MainViewModel
 import com.google.android.material.navigation.NavigationBarView
 import java.util.*
 
 class MainActivity : FragmentActivity(),MainPage,NavigationBar {
 
+    private lateinit var viewModel: MainViewModel
     private lateinit var binding : ActivityMainBinding
     private val REQUEST_CODE = 1
     var isFolder = false
-    var backFlag = true
 
-    companion object {
-        var copyNote : Notes? = null
+    override fun onRestart() {
+        super.onRestart()
+        binding.searchView.setQuery(null,false)
+        binding.searchView.clearFocus()
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        setStatusBar()
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
-
-
+        viewModel = ViewModelProvider(this@MainActivity)[MainViewModel::class.java]
         initNavigation()
+
         binding.searchView.setOnQueryTextListener(
             searchQuery()
         )
@@ -63,42 +73,27 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
             }
         }
 
-
-        Log.i("page","MainActivity")
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if(backFlag) {
-                onBackPressed()
-                return true
-            }
-            else {
-                backFlag = true
-                binding.bottomNavigation.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_UNLABELED
-
-                //initNavigation()
-                isFolder = false
-                binding.floatingActionButton.setImageResource(R.drawable.ic_baseline_add_24)
-                binding.floatingActionButton.visibility = View.VISIBLE
-                binding.searchView.setQuery(null,false)
-                binding.searchView.clearFocus()
-                Log.i(NAVIGATION_INFO, "Home Navigation invoked")
-
-                return true
-            }
-        }
-        return super.onKeyDown(keyCode, event)
     }
 
     override fun initNavigation() {
 
-        val homeFragment=FragmentPage()
-        val staredFragment=FragmentPage(true)
-        val folderFragment = FolderFragment()
+        if (viewModel.checkOrientationIsFolder) {
+            setCurrentFragment(viewModel.folderFragment)
+            viewModel.checkOrientationIsFolder = true
+            isFolder = true
+            binding.floatingActionButton.setImageResource(R.drawable.ic_baseline_folder_24)
+            binding.floatingActionButton.visibility = View.VISIBLE
+            Log.i(NAVIGATION_INFO,"Folder Navigation invoked")
 
-        setCurrentFragment(homeFragment)
+        }
+        else {
+            setCurrentFragment(viewModel.currentFragment)
+            viewModel.checkOrientationIsFolder = false
 
+            if(viewModel.currentFragment==viewModel.staredFragment){
+                binding.floatingActionButton.visibility = View.GONE
+            }
+        }
         binding.bottomNavigation.labelVisibilityMode =
             NavigationBarView.LABEL_VISIBILITY_SELECTED
 
@@ -108,8 +103,9 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
             when(it.itemId){
 
                 R.id.home-> {
-                    backFlag = true
-                    setCurrentFragment(homeFragment)
+                    setCurrentFragment(viewModel.homeFragment)
+                    viewModel.checkOrientationIsFolder = false
+                    viewModel.currentFragment = viewModel.homeFragment
                     binding.searchView.setQuery(null,false)
                     binding.searchView.clearFocus()
                     isFolder = false
@@ -122,8 +118,9 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
                 }
 
                 R.id.stared-> {
-                    backFlag = false
-                    setCurrentFragment(staredFragment)
+                    setCurrentFragment(viewModel.staredFragment)
+                    viewModel.checkOrientationIsFolder = false
+                    viewModel.currentFragment = viewModel.staredFragment
                     binding.searchView.setQuery(null,false)
                     binding.searchView.clearFocus()
                     isFolder = false
@@ -136,8 +133,8 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
                 }
 
                 R.id.folder -> {
-                    backFlag = false
-                    setCurrentFragment(folderFragment)
+                    setCurrentFragment(viewModel.folderFragment)
+                    viewModel.checkOrientationIsFolder = true
                     binding.searchView.setQuery(null,false)
                     binding.searchView.clearFocus()
                     isFolder = true
@@ -174,6 +171,8 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
 
                 adapter.search(newText)
 
+
+                Log.i("search",adapter.itemCount.toString())
                 return true
             }
         }
@@ -217,6 +216,23 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
         ) { dialog, _ -> dialog.cancel() }
 
         builder.show()
+    }
+
+    override fun onBackPressed() {
+        if(binding.bottomNavigation.selectedItemId == R.id.home) {
+            super.onBackPressed()
+            finish()
+        } else {
+            binding.bottomNavigation.selectedItemId = R.id.home
+        }
+
+    }
+
+    private fun setStatusBar() {
+        val window = this.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = ContextCompat.getColor(this@MainActivity, R.color.main_status_bar)
     }
 
 }

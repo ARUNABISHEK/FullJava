@@ -19,4 +19,6 @@
     <color name="color4">#318bd1</color>
     <color name="color5">#d345d0</color>
 
+    <color name="main_status_bar">#79000000</color>
+
 </resources>

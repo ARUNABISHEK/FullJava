@@ -2,6 +2,7 @@ package com.example.notesapplication.fragments
 
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +23,6 @@ import com.example.notesapplication.database.NoteDatabase
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.database.repository.NoteRepository
 import com.example.notesapplication.databinding.FragmentPageBinding
-import com.example.notesapplication.operations.AddNote
 import com.example.notesapplication.view_models.NoteViewModel
 import com.example.notesapplication.view_models.NoteViewModelFactory
 
@@ -48,6 +49,7 @@ class FragmentPage(private val isStared : Boolean = false,
         else
             displayNoteList(search)
 
+
         noteViewModel.message.observe(viewLifecycleOwner) { event_completion_obj ->
             event_completion_obj.getContentIfNotHandled()?.let {
                 Toast.makeText(context, it, Toast.LENGTH_LONG).show()
@@ -61,6 +63,16 @@ class FragmentPage(private val isStared : Boolean = false,
         adapter = Adapter()
         binding.recyclerView.adapter = adapter
         noteViewModel.allNotes.observe(viewLifecycleOwner) {
+            if(it.isEmpty()) {
+                binding.imageView2.visibility = View.VISIBLE
+                binding.imageView2.setImageResource(R.drawable.pencil)
+                binding.emptyNoteFlag.visibility = View.VISIBLE
+
+            }
+            else {
+                binding.emptyNoteFlag.visibility = View.GONE
+                binding.imageView2.visibility = View.GONE
+            }
             adapter.search(text)
 
         }
@@ -75,22 +87,33 @@ class FragmentPage(private val isStared : Boolean = false,
             adapter = Adapter(true)
             binding.recyclerView.adapter = adapter
             noteViewModel.favouriteNote.observe(viewLifecycleOwner) {
-                if(it.isEmpty())
+                if(it.isEmpty()) {
+                    binding.imageView2.visibility = View.VISIBLE
+                    binding.imageView2.setImageResource(R.drawable.pencil)
                     binding.emptyNoteFlag.visibility = View.VISIBLE
-                else
-                    binding.emptyNoteFlag.visibility = View.GONE
 
+                }
+                else {
+                    binding.emptyNoteFlag.visibility = View.GONE
+                    binding.imageView2.visibility = View.GONE
+                }
                 adapter.setNote(it)
+
             }
         }
         else {
             adapter = Adapter()
             binding.recyclerView.adapter = adapter
             noteViewModel.allNotes.observe(viewLifecycleOwner, Observer{
-                if(it.isEmpty())
+                if(it.isEmpty()) {
+                    binding.imageView2.visibility = View.VISIBLE
+                    binding.imageView2.setImageResource(R.drawable.empty_note)
                     binding.emptyNoteFlag.visibility = View.VISIBLE
-                else
+                }
+                else {
                     binding.emptyNoteFlag.visibility = View.GONE
+                    binding.imageView2.visibility = View.GONE
+                }
 
                 adapter.setNote(it)
             })
@@ -140,13 +163,16 @@ class FragmentPage(private val isStared : Boolean = false,
         builder?.setPositiveButton(
             "OK"
         ) { dialog, which ->
+
             noteViewModel.delete(note)
             adapter.notifyItemRemoved(note.note_id)
+            Toast.makeText(context,"Deleted...",Toast.LENGTH_SHORT).show()
         }
         builder?.setNegativeButton(
             "Cancel"
         ) { dialog, which ->
-
+            Toast.makeText(context, "Canceled", Toast.LENGTH_SHORT)
+                .show()
             adapter.notifyDataSetChanged()
             dialog.cancel()
 
@@ -183,6 +209,8 @@ class FragmentPage(private val isStared : Boolean = false,
             "Cancel"
         ) { dialog, _ ->
             dialog.cancel()
+            Toast.makeText(context, "Canceled", Toast.LENGTH_SHORT)
+                .show()
             adapter.notifyDataSetChanged() }
 
         builder?.show()

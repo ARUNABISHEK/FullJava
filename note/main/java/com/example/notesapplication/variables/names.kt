@@ -35,7 +35,7 @@ val COLOR = arrayOf(
     "#FF6263",
     "#23C4ED",
     "#38CC77",
-    "#D9D55B",      //Light - Worst
+    "#DFDFBD",      //Light - Worst
     "#318BD1",      //Dark - Worst
     "#D345D0"       //Dart - Worst
 
