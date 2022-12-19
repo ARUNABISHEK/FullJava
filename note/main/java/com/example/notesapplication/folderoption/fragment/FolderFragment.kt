@@ -55,6 +55,7 @@ class FolderFragment(private val search : String = "") : Fragment() {
             }
         }
 
+
         swipe()
         return binding.root
 
@@ -80,7 +81,9 @@ class FolderFragment(private val search : String = "") : Fragment() {
 
             }
         }).attachToRecyclerView(binding.recyclerView)
+
     }
+
 
     private fun displayFolderList(text: String) {
         folderAdapter = FolderAdapter()

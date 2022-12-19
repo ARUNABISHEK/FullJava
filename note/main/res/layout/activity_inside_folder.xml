@@ -16,7 +16,6 @@
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@null"
         android:iconifiedByDefault="false"
         android:queryHint="@string/search_bar_text"
         app:layout_constraintEnd_toEndOf="parent"
@@ -67,19 +66,19 @@
         app:layout_constraintTop_toTopOf="@+id/recycler_view"
         app:srcCompat="@drawable/empty_note1" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_view"
-            tools:listitem="@layout/notes_list"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_view"
+        app:layout_constraintVertical_bias="1.0"
+        tools:listitem="@layout/notes_list" />
 
 
-
-
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
 <!--        android:id="@+id/folder"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->

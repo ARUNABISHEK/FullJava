@@ -1,5 +1,7 @@
 package com.example.notesapplication.fragments
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -8,12 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,11 +47,15 @@ class FragmentPage(private val isStared : Boolean = false,
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_page, container,false)
         initViewModel(container)
 
+
         if(search=="")
             initRecyclerView(inflater)
         else
             displayNoteList(search)
 
+        parentFragmentManager.setFragmentResultListener("from2",this) { requestKey, Bundle ->
+
+        }
 
         noteViewModel.message.observe(viewLifecycleOwner) { event_completion_obj ->
             event_completion_obj.getContentIfNotHandled()?.let {
@@ -134,6 +141,7 @@ class FragmentPage(private val isStared : Boolean = false,
                 return false
             }
 
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val currentNote = adapter.getNote(viewHolder.adapterPosition)
                 if(currentNote.lock==null)
@@ -181,6 +189,7 @@ class FragmentPage(private val isStared : Boolean = false,
         builder?.show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun PasswordDialogBox(note: Notes) {
         var pass = ""
         val builder = context?.let { AlertDialog.Builder(it) }
@@ -196,11 +205,14 @@ class FragmentPage(private val isStared : Boolean = false,
             "OK"
         ) { _, _ ->
             pass = input.text.toString()
+            Log.i("pass",pass)
             val decrypt = noteViewModel.decrypt(note.lock.toString())
+            Log.i("pass",decrypt)
             if (pass == decrypt) {
                 deleteDialogBox(note)
             }
             else {
+                Toast.makeText(context,"Wrong password",Toast.LENGTH_SHORT).show()
                 adapter.notifyDataSetChanged()
             }
 
@@ -216,4 +228,8 @@ class FragmentPage(private val isStared : Boolean = false,
         builder?.show()
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+    }
 }

@@ -1,18 +1,28 @@
 package com.example.notesapplication.view_models
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesapplication.operations.EventCompletion
 import com.example.notesapplication.SetPassword
+import com.example.notesapplication.SetPassword.getFlagNumber.ALGORITHM
+import com.example.notesapplication.SetPassword.getFlagNumber.keyValue
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.database.repository.NoteRepository
+import com.example.notesapplication.operations.EventCompletion
 import com.example.notesapplication.variables.COLOR
 import com.example.notesapplication.variables.METHOD
 import com.example.notesapplication.variables.OPERATION_COMPLETED_TAG
 import kotlinx.coroutines.*
+import org.apache.commons.codec.binary.Base64
+import java.security.Key
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+
 
 class NoteViewModel(private val repository : NoteRepository) : ViewModel(),SetPassword {
 
@@ -104,44 +114,46 @@ class NoteViewModel(private val repository : NoteRepository) : ViewModel(),SetPa
         Log.i(METHOD,"insert method invoked")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun encrypt(password: String): String {
-        val key = SetPassword.getFlagNumber.value
 
-        val charArray = password.toCharArray()
-        var encryptedPassword = ""
+        return encryption(password, generateKey())
 
-        for(i in charArray) {
-            var letter : Char = (i.toInt() + key).toChar()
-
-            if((i in 'a'..'z') && letter > 'z' || (i in 'A'..'Z') && letter > 'Z') {
-                if(letter > 'z' || letter > 'Z') {
-                    letter -= 26
-                }
-            }
-
-            encryptedPassword += letter
-        }
-        return encryptedPassword
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun decrypt(password: String): String {
 
-        val key = SetPassword.getFlagNumber.value
-        val charArray = password.toCharArray()
-        var decryptedPassword = ""
+        return decryption(password,generateKey())
 
-        for(i in charArray) {
-            var letter : Char = (i.toInt() - key).toChar()
-
-            if((i in 'a'..'z') && letter < 'a' || (i in 'A'..'Z') && letter < 'A') {
-                if(letter < 'a' || letter < 'A') {
-                    letter += 26
-                }
-            }
-
-            decryptedPassword += letter
-        }
-        return decryptedPassword
     }
+
+    //-------------------------------------------------------------------
+
+    @Throws(Exception::class)
+    private fun generateKey(): Key? {
+        return SecretKeySpec(keyValue, ALGORITHM)
+    }
+
+    @Throws(Exception::class)
+    fun encryption(valueToEnc: String, key: Key?): String {
+        val cipher = Cipher.getInstance(ALGORITHM)
+        cipher.init(Cipher.ENCRYPT_MODE, key)
+        val encValue = cipher.doFinal(valueToEnc.toByteArray())
+        val encryptedByteValue: ByteArray = Base64().encode(encValue)
+        return String(encryptedByteValue)
+    }
+
+    @Throws(Exception::class)
+    fun decryption(encryptedValue: String, key: Key?): String {
+        val cipher = Cipher.getInstance(ALGORITHM)
+        cipher.init(Cipher.DECRYPT_MODE, key)
+        val decodedBytes: ByteArray = Base64().decode(encryptedValue.toByteArray())
+        val enctVal = cipher.doFinal(decodedBytes)
+
+        return String(enctVal)
+    }
+
+    //-------------------------------------------------------------------
 
 }

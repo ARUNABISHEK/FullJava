@@ -6,11 +6,13 @@ import android.text.InputType
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,7 +37,7 @@ class InsideFolderActivity : AppCompatActivity(),MainPage {
         binding = DataBindingUtil.setContentView(this,R.layout.activity_inside_folder)
 
         folderId = intent.extras?.get("folder_id") as Int
-
+        setStatusBar()
         binding.addFile.setOnClickListener {
             val i = Intent(this,AddNote::class.java)
             i.putExtra("folder_id",folderId)
@@ -188,5 +190,10 @@ class InsideFolderActivity : AppCompatActivity(),MainPage {
 
         builder.show()
     }
-
+    private fun setStatusBar() {
+        val window = this.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = ContextCompat.getColor(this@InsideFolderActivity, R.color.main_status_bar)
+    }
 }

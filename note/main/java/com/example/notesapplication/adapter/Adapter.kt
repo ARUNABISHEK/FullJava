@@ -1,7 +1,6 @@
 package com.example.notesapplication.adapter
 
-import android.content.ClipData
-import android.content.ClipboardManager
+
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -14,26 +13,35 @@ import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notesapplication.R
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.databinding.NotesListBinding
-import com.example.notesapplication.folderoption.fragment.FolderFragment
 import com.example.notesapplication.fragments.FragmentPage.Companion.adapter
 import com.example.notesapplication.fragments.FragmentPage.Companion.noteViewModel
 import com.example.notesapplication.operations.AddNote
 import com.example.notesapplication.view_models.NoteViewModel
 
-class Adapter(private val isStared : Boolean = false) : RecyclerView.Adapter<ViewHolder>() {
+class Adapter(private val isStared: Boolean = false) : RecyclerView.Adapter<ViewHolder>() {
 
     private var noteList = mutableListOf<Notes>()
     private var myList = mutableListOf<Notes>()
     private var folderId : Int = -1
     var insideFolderIsNoteAvailable = false
     private lateinit var binding : NotesListBinding
+
+//    interface OnItemClickListener {
+//        fun onItemClick(position: Int)
+//    }
+//
+//    private var mListener: OnItemClickListener? = null
+//
+//    fun setOnItemClickListener(listener: OnItemClickListener) {
+//        mListener = listener
+//    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -61,6 +69,17 @@ class Adapter(private val isStared : Boolean = false) : RecyclerView.Adapter<Vie
         }
 
         holder.binding.cardView.setCardBackgroundColor(Color.parseColor(myList[position].color))
+
+
+//        holder.itemView.setOnClickListener(View.OnClickListener {
+//            Log.i("inter","inter_invoke")
+//
+//            if (mListener != null) {
+//                if (position != RecyclerView.NO_POSITION) {
+//                    mListener!!.onItemClick(position)
+//                }
+//            }
+//        })
 
     }
 
@@ -130,7 +149,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
         binding.note.setHintTextColor(colorCode)
     }
 
-    fun bind(note : Notes) {
+    fun bind(note: Notes) {
 
         binding.title.text = note.title
         binding.note.text = note.note
@@ -139,7 +158,6 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
         binding.indexPin.setImageResource(R.drawable.ic_baseline_star_border_24)
 
         setTextColor(Color.BLACK,R.color.black)
-
 
         if(note.lock!=null) {
             //binding.cardView.setCardBackgroundColor(Color.RED)
@@ -176,33 +194,39 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
         binding.listItem.setOnLongClickListener{
 
-//            popup(it,note)
+            //popup(it,note)
             true
         }
 
     }
 
-//    private fun popup(v: View,note: Notes) {
-//        val popupMenu = PopupMenu(v.context, v)
-//        popupMenu.menu.add("Copy")
-//        popupMenu.menu.add("Move")
-//        popupMenu.menu.add("Rename")
-//        popupMenu.setOnMenuItemClickListener { item ->
-//
-//            if (item.title == "Copy") {
-//                val copyNote : Notes = note.copy()
-//
-//            }
-//            if (item.title == "Move") {
-//
-//            }
-//            if (item.title == "Rename") {
-//
-//            }
-//            true
-//        }
-//        popupMenu.show()
-//    }
+    private fun popup(v: View,note: Notes) {
+        val popupMenu = PopupMenu(v.context, v)
+        popupMenu.menu.add("Copy")
+        popupMenu.menu.add("Move")
+        popupMenu.menu.add("Rename")
+        popupMenu.setOnMenuItemClickListener { item ->
+
+            if (item.title == "Copy") {
+                val copyNote : Notes = note.copy()
+
+//                if (mListener != null) {
+//                    Log.i("pos",adapterPosition.toString())
+//                    if (adapterPosition != RecyclerView.NO_POSITION) {
+//                        mListener!!.onItemClick(adapterPosition)
+//                    }
+//                }
+            }
+            if (item.title == "Move") {
+
+            }
+            if (item.title == "Rename") {
+
+            }
+            true
+        }
+        popupMenu.show()
+    }
 
     fun bindStared(note: Notes) {
         binding.title.text = note.title

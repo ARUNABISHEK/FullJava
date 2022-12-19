@@ -59,6 +59,7 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
         viewModel = ViewModelProvider(this@MainActivity)[MainViewModel::class.java]
         initNavigation()
 
+
         binding.searchView.setOnQueryTextListener(
             searchQuery()
         )
