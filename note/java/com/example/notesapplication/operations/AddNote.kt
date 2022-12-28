@@ -1,7 +1,6 @@
 package com.example.notesapplication.operations
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
@@ -10,28 +9,31 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.notesapplication.MainActivity.Companion.COLOR
 import com.example.notesapplication.R
+import com.example.notesapplication.adapter.ColorAdapter
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.databinding.AddNoteBinding
 import com.example.notesapplication.fragments.FragmentPage.Companion.adapter
 import com.example.notesapplication.fragments.FragmentPage.Companion.noteViewModel
-import com.example.notesapplication.variables.COLOR
 import com.example.notesapplication.variables.OPERATION_COMPLETED_TAG
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.*
 import java.util.*
 
 
+@Suppress("DEPRECATION")
 class AddNote : AppCompatActivity() {
 
     private lateinit var binding : AddNoteBinding
@@ -46,6 +48,7 @@ class AddNote : AppCompatActivity() {
     private var isUpdateColorFlag = false
 
     private var updateColor : Boolean = false
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBackPressed() {
@@ -119,32 +122,15 @@ class AddNote : AppCompatActivity() {
             binding.noteTextView.text = currentNote.note?.toEditable()
             binding.noteFrame.setBackgroundColor(Color.parseColor(currentNote.color))
 
-            if(currentNote.color == COLOR[3] ||currentNote.color == COLOR[2])
-                setTextColor(Color.BLACK)
-
-            else if(currentNote.color == COLOR[4] || currentNote.color == COLOR[5])
-                setTextColor(Color.WHITE)
-
             initSymbols(currentNote)
         } else if(intent.extras?.get("folder_id")!=null) {
             folderId = intent.extras?.get("folder_id") as Int
+
             binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[noteViewModel.colorIndex]))
             setStatusBar()
-            if(noteViewModel.colorIndex==3) {
-                setTextColor(Color.BLACK)
-            }
-            else if(noteViewModel.colorIndex==4 || noteViewModel.colorIndex==5) {
-                setTextColor(Color.WHITE)
-            }
         } else {
             binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[noteViewModel.colorIndex]))
             setStatusBar()
-            if(noteViewModel.colorIndex==3) {
-                setTextColor(Color.BLACK)
-            }
-            else if(noteViewModel.colorIndex==4 || noteViewModel.colorIndex==5) {
-                setTextColor(Color.WHITE)
-            }
         }
 
         //Insert
@@ -156,7 +142,8 @@ class AddNote : AppCompatActivity() {
         }
 
         binding.backArrowButton.setOnClickListener {
-            if(isUpdated &&
+
+            if(isUpdated && !updateColor &&
                 binding.titleTextView.text.toString() == currentNote.title.toString() &&
                 binding.noteTextView.text.toString() == currentNote.note.toString() &&
                 currentNote.favourite == favourite &&
@@ -191,66 +178,18 @@ class AddNote : AppCompatActivity() {
         binding.colorChange.setOnClickListener {
 
             updateColor = true
-            val dialog = Dialog(this@AddNote)
 
-            dialog.setContentView(R.layout.color_change)
-            dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val bottomDialog = BottomSheetDialog(this@AddNote)
 
-            dialog.window?.attributes?.windowAnimations = R.style.animation;
-            setStatusBar()
-            val color1 = dialog.findViewById<ImageView>(R.id.color1)
-            val color2 = dialog.findViewById<ImageView>(R.id.color2)
-            val color3 = dialog.findViewById<ImageView>(R.id.color3)
-            val color4 = dialog.findViewById<ImageView>(R.id.color4)
-            val color5 = dialog.findViewById<ImageView>(R.id.color5)
-            val color6 = dialog.findViewById<ImageView>(R.id.color6)
-            val done = dialog.findViewById<TextView>(R.id.done)
+            val inflater = LayoutInflater.from(this).inflate(R.layout.color,findViewById(R.id.layout),false)
+            bottomDialog.setContentView(inflater)
+            bottomDialog.show()
 
-            done.setOnClickListener{
-                dialog.dismiss()
-            }
+            val colorAdapter = ColorAdapter(binding,this)
+            val recyclerView = bottomDialog.findViewById<RecyclerView>(R.id.color_recycler_view)
+            recyclerView?.adapter = colorAdapter
+            recyclerView?.layoutManager = GridLayoutManager(this,3)
 
-            color1.setOnClickListener {
-                binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[0]))
-                noteViewModel.colorIndex = 0
-                setStatusBar()
-            }
-
-            color2.setOnClickListener {
-                binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[1]))
-                noteViewModel.colorIndex = 1
-                setStatusBar()
-            }
-
-            color3.setOnClickListener {
-                binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[2]))
-                setTextColor(Color.BLACK)
-                noteViewModel.colorIndex = 2
-                setStatusBar()
-            }
-
-            color4.setOnClickListener {
-                binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[3]))
-                setTextColor(Color.BLACK)
-                noteViewModel.colorIndex = 3
-                setStatusBar()
-            }
-
-           color5.setOnClickListener {
-               binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[4]))
-               setTextColor(Color.WHITE)
-               noteViewModel.colorIndex = 4
-               setStatusBar()
-            }
-
-            color6.setOnClickListener {
-                binding.noteFrame.setBackgroundColor(Color.parseColor(COLOR[5]))
-                setTextColor(Color.WHITE)
-                noteViewModel.colorIndex = 5
-                setStatusBar()
-            }
-//
-            dialog.show()
         }
                
     }
@@ -292,9 +231,9 @@ class AddNote : AppCompatActivity() {
 
         builder.setPositiveButton(
             "OK"
-        ) { dialog, which -> pass = input.text.toString()
+        ) { _, _ -> pass = input.text.toString()
 
-            if(pass=="" || pass==null) {
+            if(pass=="") {
                 Toast.makeText(it.context,"Please enter password", Toast.LENGTH_SHORT).show()
             }
             else {
@@ -305,7 +244,7 @@ class AddNote : AppCompatActivity() {
         }
         builder.setNegativeButton(
             "Cancel"
-        ) { dialog, which -> dialog.cancel() }
+        ) { dialog, _ -> dialog.cancel() }
 
         builder.show()
     }
@@ -360,7 +299,7 @@ class AddNote : AppCompatActivity() {
             if(lock!=null)
                 currentNote.lock = noteViewModel.encrypt(lock.toString())
             else
-                currentNote.lock = lock
+                currentNote.lock = null
             currentNote.favourite = favourite
 
             if(updateColor)
@@ -428,27 +367,21 @@ class AddNote : AppCompatActivity() {
         finish()
     }
 
-    private fun setTextColor(colorCode: Int) {
-        binding.noteTextView.setTextColor(colorCode)
-        binding.titleTextView.setTextColor(colorCode)
-        binding.dateTextView.setTextColor(colorCode)
-
-        binding.titleTextView.setHintTextColor(colorCode)
-        binding.noteTextView.setHintTextColor(colorCode)
-    }
-
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun setStatusBar() {
         val window = this.window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
-        if(isUpdated && !isUpdateColorFlag) {
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        if (isUpdated && !isUpdateColorFlag) {
             isUpdateColorFlag = true
             val color = Color.parseColor(currentNote.color.replace("#", "#66"))
             window.statusBarColor = color
         } else {
+
             val color = Color.parseColor(COLOR[noteViewModel.colorIndex].replace("#", "#66"))
             window.statusBarColor = color
         }
     }
+
 }

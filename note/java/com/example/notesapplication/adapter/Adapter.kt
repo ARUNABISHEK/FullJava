@@ -1,6 +1,7 @@
 package com.example.notesapplication.adapter
 
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -61,7 +62,8 @@ class Adapter : RecyclerView.Adapter<ViewHolder>() {
 
     }
 
-    fun search(search : String,id : Int=folderId) {     //id, for searching particular folder
+    @SuppressLint("NotifyDataSetChanged")
+    fun search(search : String, id : Int=folderId) {     //id, for searching particular folder
         myList.clear()
         if(id!=folderId) {
             for(item in noteList) {
@@ -90,6 +92,7 @@ class Adapter : RecyclerView.Adapter<ViewHolder>() {
         return myList[index]
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setNote(list : List<Notes>) {
         noteList.clear()
         noteList.addAll(list)
@@ -99,6 +102,7 @@ class Adapter : RecyclerView.Adapter<ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun fileInFolder(id : Int) {
 
         myList.clear()
@@ -118,8 +122,8 @@ class Adapter : RecyclerView.Adapter<ViewHolder>() {
 
 class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    private fun setTextColor(colorCodeTitle : Int,colorCode : Int) {
-        binding.title.setTextColor(colorCodeTitle)
+    private fun setTextColor(colorCode : Int) {
+        binding.title.setTextColor(Color.BLACK)
         binding.note.setTextColor(colorCode)
         binding.date.setTextColor(colorCode)
 
@@ -127,6 +131,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
         binding.note.setHintTextColor(colorCode)
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     fun bind(note: Notes) {
 
@@ -136,11 +141,11 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
         binding.indexLock.setImageResource(R.drawable.ic_baseline_lock_open_24)
         binding.indexPin.setImageResource(R.drawable.ic_baseline_star_border_24)
 
-        setTextColor(Color.BLACK,R.color.black)
+        setTextColor(R.color.black)
 
         if(note.lock!=null) {
             //binding.cardView.setCardBackgroundColor(Color.RED)
-            binding.note.text = "Password Producted"
+            binding.note.text = "Password Protected"
             binding.indexLock.setImageResource(R.drawable.ic_baseline_lock_24)
         }
 
@@ -187,10 +192,10 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
             builder.setPositiveButton(
                 "OK"
-            ) { dialog, which ->
+            ) { _, _ ->
                 pass = input.text.toString()
 
-                if (pass == "" || pass == null) {
+                if (pass == "") {
                     Toast.makeText(it.context, "Please enter password", Toast.LENGTH_SHORT)
                         .show()
                     lockDialogBox(it, note, noteViewModel)
@@ -206,7 +211,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
             builder.setNegativeButton(
                 "Cancel"
-            ) { dialog, which ->
+            ) { dialog, _ ->
                 Toast.makeText(it.context, "Canceled", Toast.LENGTH_SHORT)
                     .show()
                 dialog.cancel()
@@ -248,7 +253,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun openNote(it: Context, note: Notes) {
-        var text = ""
+        var text: String
         if(note.lock!=null) {
             val builder = AlertDialog.Builder(it)
             builder.setCancelable(false)
@@ -261,7 +266,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
 
             builder.setPositiveButton(
                 "OK"
-            ) { dialog, which ->
+            ) { _, _ ->
 
                 text = input.text.toString()
 
@@ -286,7 +291,7 @@ class ViewHolder(val binding: NotesListBinding) : RecyclerView.ViewHolder(bindin
             }
             builder.setNegativeButton(
                 "Cancel"
-            ) { dialog, which ->
+            ) { dialog, _ ->
                 Toast.makeText(it, "Canceled", Toast.LENGTH_SHORT)
                     .show()
                 dialog.cancel() }

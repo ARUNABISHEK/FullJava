@@ -7,13 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.notesapplication.MainActivity.Companion.COLOR
 import com.example.notesapplication.SetPassword
-import com.example.notesapplication.SetPassword.getFlagNumber.ALGORITHM
-import com.example.notesapplication.SetPassword.getFlagNumber.keyValue
+import com.example.notesapplication.SetPassword.Companion.GetFlagNumber.ALGORITHM
+import com.example.notesapplication.SetPassword.Companion.GetFlagNumber.keyValue
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.database.repository.NoteRepository
 import com.example.notesapplication.operations.EventCompletion
-import com.example.notesapplication.variables.COLOR
 import com.example.notesapplication.variables.METHOD
 import com.example.notesapplication.variables.OPERATION_COMPLETED_TAG
 import kotlinx.coroutines.*
@@ -29,7 +29,7 @@ class NoteViewModel(private val repository : NoteRepository) : ViewModel(),SetPa
     val allNotes = repository.allNotes
     val favouriteNote = repository.favouriteNote
     var colorIndex = (COLOR.indices).random()
-   // var colorIndex = 0
+
     private val statusMessage = MutableLiveData<EventCompletion<String>>()
     val message : LiveData<EventCompletion<String>>
         get() = statusMessage
@@ -131,7 +131,7 @@ class NoteViewModel(private val repository : NoteRepository) : ViewModel(),SetPa
     //-------------------------------------------------------------------
 
     @Throws(Exception::class)
-    private fun generateKey(): Key? {
+    private fun generateKey(): Key {
         return SecretKeySpec(keyValue, ALGORITHM)
     }
 
@@ -149,9 +149,9 @@ class NoteViewModel(private val repository : NoteRepository) : ViewModel(),SetPa
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, key)
         val decodedBytes: ByteArray = Base64().decode(encryptedValue.toByteArray())
-        val enctVal = cipher.doFinal(decodedBytes)
+        val decryptValue = cipher.doFinal(decodedBytes)
 
-        return String(enctVal)
+        return String(decryptValue)
     }
 
     //-------------------------------------------------------------------

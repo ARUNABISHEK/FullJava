@@ -1,5 +1,6 @@
 package com.example.notesapplication.fragments
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
 import android.os.Build
@@ -14,7 +15,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +30,7 @@ import com.example.notesapplication.view_models.NoteViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
 
 
+@Suppress("DEPRECATION")
 class FragmentPage(private val isStared : Boolean = false,
                    private val search : String = "") : Fragment() {
 
@@ -43,7 +44,7 @@ class FragmentPage(private val isStared : Boolean = false,
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_page, container,false)
         initViewModel(container)
@@ -53,10 +54,6 @@ class FragmentPage(private val isStared : Boolean = false,
             initRecyclerView(inflater)
         else
             displayNoteList(search)
-
-        parentFragmentManager.setFragmentResultListener("from2",this) { requestKey, Bundle ->
-
-        }
 
         noteViewModel.message.observe(viewLifecycleOwner) { event_completion_obj ->
             event_completion_obj.getContentIfNotHandled()?.let {
@@ -86,7 +83,7 @@ class FragmentPage(private val isStared : Boolean = false,
         }
     }
 
-    fun initRecyclerView(inflater: LayoutInflater) {
+    private fun initRecyclerView(inflater: LayoutInflater) {
 
         //Initialize_Recycler_View
         binding.recyclerView.layoutManager = LinearLayoutManager(inflater.context)
@@ -112,7 +109,7 @@ class FragmentPage(private val isStared : Boolean = false,
         else {
             adapter = Adapter()
             binding.recyclerView.adapter = adapter
-            noteViewModel.allNotes.observe(viewLifecycleOwner, Observer{
+            noteViewModel.allNotes.observe(viewLifecycleOwner){
                 if(it.isEmpty()) {
                     binding.imageView2.visibility = View.VISIBLE
                     binding.imageView2.setImageResource(R.drawable.empty_note)
@@ -124,7 +121,7 @@ class FragmentPage(private val isStared : Boolean = false,
                 }
 
                 adapter.setNote(it)
-            })
+            }
         }
 
         swipe()
@@ -148,7 +145,7 @@ class FragmentPage(private val isStared : Boolean = false,
                 if(currentNote.lock==null)
                     deleteDialogBox(currentNote)
                 else
-                    PasswordDialogBox(currentNote)
+                    passwordDialogBox(currentNote)
 
             }
         }).attachToRecyclerView(binding.recyclerView)
@@ -163,6 +160,7 @@ class FragmentPage(private val isStared : Boolean = false,
         noteViewModel = ViewModelProvider(this@FragmentPage,factory)[NoteViewModel::class.java]
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun deleteDialogBox(note : Notes) {
         val builder = context?.let { AlertDialog.Builder(it) }
         builder?.setCancelable(false)
@@ -171,7 +169,7 @@ class FragmentPage(private val isStared : Boolean = false,
 
         builder?.setPositiveButton(
             "OK"
-        ) { dialog, which ->
+        ) { _, _ ->
 
             noteViewModel.delete(note)
             adapter.notifyItemRemoved(note.note_id)
@@ -179,7 +177,7 @@ class FragmentPage(private val isStared : Boolean = false,
         }
         builder?.setNegativeButton(
             "Cancel"
-        ) { dialog, which ->
+        ) { dialog, _ ->
             Toast.makeText(context, "Canceled", Toast.LENGTH_SHORT)
                 .show()
             adapter.notifyDataSetChanged()
@@ -190,12 +188,13 @@ class FragmentPage(private val isStared : Boolean = false,
         builder?.show()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun PasswordDialogBox(note: Notes) {
+    private fun passwordDialogBox(note: Notes) {
 
         val dialogBox = context?.let { Dialog(it) }
         dialogBox?.setContentView(R.layout.delete_custom_layout)
-        dialogBox?.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialogBox?.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         //dialogBox?.window?.attributes?.windowAnimations = R.style.animation
 
 
@@ -210,7 +209,7 @@ class FragmentPage(private val isStared : Boolean = false,
 
             delete?.setOnClickListener {
 
-                if (deleteCheck.isChecked()) {
+                if (deleteCheck.isChecked) {
                     if(pass.toString() == noteViewModel.decrypt(note.lock.toString())) {
                         noteViewModel.delete(note)
                         adapter.notifyItemRemoved(note.note_id)
@@ -234,7 +233,9 @@ class FragmentPage(private val isStared : Boolean = false,
                 dialogBox.dismiss()
             }
 
-            dialogBox?.show()
+            dialogBox.setCancelable(false)
+
+            dialogBox.show()
         }
     }
 

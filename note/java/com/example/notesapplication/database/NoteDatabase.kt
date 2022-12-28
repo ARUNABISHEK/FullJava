@@ -6,8 +6,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.notesapplication.database.model.Notes
-import com.example.notesapplication.folderoption.db.FolderDao
-import com.example.notesapplication.folderoption.db.model.Folder
+import com.example.notesapplication.folderOption.db.FolderDao
+import com.example.notesapplication.folderOption.db.model.Folder
 import com.example.notesapplication.variables.DATABASE_NAME
 import com.example.notesapplication.variables.INSTANCE_CREATION
 

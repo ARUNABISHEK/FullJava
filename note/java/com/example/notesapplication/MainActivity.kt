@@ -1,7 +1,7 @@
 package com.example.notesapplication
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -10,7 +10,6 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -19,27 +18,30 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.notesapplication.database.model.Notes
 import com.example.notesapplication.databinding.ActivityMainBinding
-import com.example.notesapplication.folderoption.db.model.Folder
-import com.example.notesapplication.folderoption.fragment.FolderFragment.Companion.folderAdapter
-import com.example.notesapplication.folderoption.fragment.FolderFragment.Companion.folderViewModel
+import com.example.notesapplication.folderOption.db.model.Folder
+import com.example.notesapplication.folderOption.fragment.FolderFragment.Companion.folderAdapter
+import com.example.notesapplication.folderOption.fragment.FolderFragment.Companion.folderViewModel
 import com.example.notesapplication.fragments.FragmentPage.Companion.adapter
 import com.example.notesapplication.fragments.FragmentPage.Companion.noteViewModel
 import com.example.notesapplication.operations.AddNote
 import com.example.notesapplication.operations.MainPage
 import com.example.notesapplication.operations.NavigationBar
-import com.example.notesapplication.variables.NAVIGATION_INFO
-import com.example.notesapplication.variables.TEST_TAG
 import com.example.notesapplication.view_models.MainViewModel
 import com.google.android.material.navigation.NavigationBarView
 import java.util.*
 
+@Suppress("DEPRECATION")
 class MainActivity : FragmentActivity(),MainPage,NavigationBar {
+
+    companion object {
+        val COLOR = mutableListOf<String>()
+
+    }
 
     private lateinit var viewModel: MainViewModel       //For handle orientation changes
     private lateinit var binding : ActivityMainBinding
-    private val REQUEST_CODE = 1
     var isFolder = false
-
+    private val requestCode: Int = 1
     override fun onRestart() {
         super.onRestart()
         binding.searchView.setQuery(null,false)
@@ -47,6 +49,10 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val colorCode = this.resources.getStringArray(R.array.color_code)
+        COLOR.addAll(colorCode)
+
+
         setStatusBar()
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
@@ -64,7 +70,7 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
             }
             else {
                 val intent = Intent(this@MainActivity, AddNote::class.java)
-                startActivityForResult(intent, REQUEST_CODE)
+                startActivityForResult(intent, requestCode)
             }
         }
 
@@ -73,7 +79,11 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
     override fun initNavigation() {
 
         if (viewModel.checkOrientationIsFolder) {
-            attributes(viewModel.folderFragment,true,true,true)
+            attributes(viewModel.folderFragment,
+                checkOrientationIsFolder = true,
+                addButton = true,
+                is_folder = true
+            )
             binding.floatingActionButton.setImageResource(R.drawable.ic_baseline_folder_24)
 
         }
@@ -93,18 +103,30 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
             when(it.itemId){
 
                 R.id.home-> {
-                    attributes(viewModel.homeFragment,false,true,false)
+                    attributes(viewModel.homeFragment,
+                        checkOrientationIsFolder = false,
+                        addButton = true,
+                        is_folder = false
+                    )
                     viewModel.currentFragment = viewModel.homeFragment
                     binding.floatingActionButton.setImageResource(R.drawable.ic_baseline_add_24)
                 }
 
                 R.id.stared-> {
-                    attributes(viewModel.staredFragment,false,false,false)
+                    attributes(viewModel.staredFragment,
+                        checkOrientationIsFolder = false,
+                        addButton = false,
+                        is_folder = false
+                    )
                     viewModel.currentFragment = viewModel.staredFragment
                 }
 
                 R.id.folder -> {
-                    attributes(viewModel.folderFragment,true,true,true)
+                    attributes(viewModel.folderFragment,
+                        checkOrientationIsFolder = true,
+                        addButton = true,
+                        is_folder = true
+                    )
                     binding.floatingActionButton.setImageResource(R.drawable.ic_baseline_folder_24)
                 }
             }
@@ -131,7 +153,7 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
         }
     }
 
-    override fun searchQuery(): SearchView.OnQueryTextListener? {
+    override fun searchQuery(): SearchView.OnQueryTextListener {
 
         return object : SearchView.OnQueryTextListener {
 
@@ -151,9 +173,11 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode==REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode==this.requestCode && resultCode == RESULT_OK) {
             val note : Notes = data?.extras?.get("note_object") as Notes
             noteViewModel.insert(note)
 
@@ -166,7 +190,7 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
     }
 
     private fun createNewFolder() {
-        var name = ""
+        var name: String
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Folder Name : ")
 
@@ -208,6 +232,7 @@ class MainActivity : FragmentActivity(),MainPage,NavigationBar {
     }
 
 }
+
 
 
 

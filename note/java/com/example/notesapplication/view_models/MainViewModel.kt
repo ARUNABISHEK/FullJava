@@ -1,7 +1,7 @@
 package com.example.notesapplication.view_models
 
 import androidx.lifecycle.ViewModel
-import com.example.notesapplication.folderoption.fragment.FolderFragment
+import com.example.notesapplication.folderOption.fragment.FolderFragment
 import com.example.notesapplication.fragments.FragmentPage
 
 class MainViewModel : ViewModel() {
