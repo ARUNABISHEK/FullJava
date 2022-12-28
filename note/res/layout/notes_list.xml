@@ -29,13 +29,13 @@
                 android:layout_marginStart="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="MissingConstraints">
+                tools:ignore="MissingConstraints,RtlHardcoded">
 
                 <TextView
                     android:id="@+id/title"
                     android:layout_width="0dp"
                     android:layout_height="40sp"
-                    android:text="Title"
+                    android:text="@string/title"
                     android:textSize="30sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toStartOf="@+id/index_lock"
@@ -52,7 +52,7 @@
                     android:layout_marginRight="-8dp"
                     app:layout_constraintEnd_toStartOf="@+id/index_pin"
                     app:srcCompat="@drawable/ic_baseline_lock_open_24"
-                    tools:ignore="MissingConstraints"
+                    tools:ignore="ContentDescription,MissingConstraints"
                     tools:layout_editor_absoluteY="0dp" />
 
                 <ImageView
@@ -62,7 +62,7 @@
                     android:padding="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:srcCompat="@drawable/ic_baseline_star_border_24"
-                    tools:ignore="MissingConstraints"
+                    tools:ignore="ContentDescription,MissingConstraints"
                     tools:layout_editor_absoluteY="0dp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -72,7 +72,7 @@
                 android:layout_height="24sp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                android:text="Notes"
+                android:text="@string/notes"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                android:text="Date"
+                android:text="@string/date"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 

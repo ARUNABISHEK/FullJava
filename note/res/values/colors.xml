@@ -13,14 +13,20 @@
     <color name="icon_color">#F60505</color>
     <color name="icon_text_color">#2F4C29</color>
 
-    <color name="color1">#FF6263</color>
-    <color name="color2">#23c4ed</color>
-    <color name="color3">#38cc77</color>
-    <color name="color4">#318bd1</color>
-    <color name="color5">#d345d0</color>
+    <color name="color0">#38CC77</color>
+    <color name="color1">#F7F2F2</color>
+    <color name="color2">#FF6263</color>
+    <color name="color3">#DFDFBD</color>
+    <color name="color4">#D668D4</color>
+    <color name="color5">#8C9DDA</color>
+    <color name="color6">#49F1D8</color>
+    <color name="color7">#628EE6</color>
+    <color name="color8">#906DE3</color>
+    <color name="color9">#BC2929</color>
 
     <color name="main_status_bar">#79000000</color>
 
 
+    
 
 </resources>

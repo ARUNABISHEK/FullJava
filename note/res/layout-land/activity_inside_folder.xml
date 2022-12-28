@@ -9,7 +9,7 @@
         android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".folderoption.InsideFolderActivity">
+        tools:context=".folderOption.InsideFolderActivity">
 
 
         <SearchView
@@ -34,16 +34,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_add_24"
-            tools:ignore="MissingConstraints" />
+            tools:ignore="ContentDescription,MissingConstraints,RtlHardcoded" />
 
         <TextView
             android:id="@+id/empty_note_flag"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Notes are Empty...Please enter notes!!!"
+            android:text="@string/empty_message"
             android:textAlignment="center"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="bold|italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -59,7 +59,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/recycler_view"
-            app:srcCompat="@drawable/empty_note1" />
+            app:srcCompat="@drawable/empty_note1"
+            tools:ignore="ContentDescription" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"

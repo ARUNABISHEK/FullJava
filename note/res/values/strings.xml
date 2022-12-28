@@ -7,5 +7,32 @@
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="delete">Delete</string>
+    <string name="add_note">Add Note</string>
+    <string name="empty_message">Notes are Empty...Please enter notes!!!</string>
+    <string name="empty_note">Empty note</string>
+    <string name="save_image">Save Image</string>
+    <string name="favourite_image">favourite image</string>
+    <string name="lock_image">Lock Image</string>
+    <string name="change_color">change color</string>
+    <string name="title">Title</string>
+    <string name="start_typing">Start typing...</string>
+    <string name="check_box_text">Do you want delete?</string>
+    <string name="password_hint">Enter password</string>
+    <string name="cancel">Cancel</string>
+    <string name="untitled">Untitled</string>
+    <string name="date">Date</string>
+    <string name="notes">Notes</string>
 
+    <string-array name="color_code">
+        <item>#38CC77</item>
+        <item>#F7F2F2</item>
+        <item>#FF6263</item>
+        <item>#DFDFBD</item>
+        <item>#D668D4</item>
+        <item>#8C9DDA</item>
+        <item>#49F1D8</item>
+        <item>#628EE6</item>
+        <item>#906DE3</item>
+        <item>#BC2929</item>
+    </string-array>
 </resources>
